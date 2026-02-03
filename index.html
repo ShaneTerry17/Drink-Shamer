@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #000;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 28px;
+        }
+        
+        h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: #000;
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .setting-row label {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        input[type="number"] {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            background: #f0f0f0;
+            border-radius: 12px;
+            height: 24px;
+            margin: 16px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #333 0%, #000 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .drink-types {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .drink-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .drink-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .drink-btn:hover {
+            background: #333;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .history-date {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .history-drinks {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .delete-btn {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .edit-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .drink-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .drink-info {
+            flex: 1;
+        }
+        
+        .drink-type-text {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .drink-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .delete-drink-btn {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .add-drink-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .add-drink-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .add-drink-btn {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .date-picker-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .date-picker-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .date-picker-section input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .alert {
+            background: #e0e0e0;
+            border: 2px solid #999;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .alert.success {
+            background: #f0f0f0;
+            border-color: #666;
+            color: #000;
+        }
+        
+        .alert.danger {
+            background: #333;
+            border-color: #000;
+            color: #fff;
+        }
+        
+        .performance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .performance-month {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .performance-result {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .badge-success {
+            background: #000;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-fail {
+            background: #666;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .performance-details {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍷 Drink Tracker</h1>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button onclick="showPhilosophyPopup()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                How Drink Shamer Rebuilds a Healthier Relationship with Drinking
+            </button>
+        </div>
+        
+        <div class="card">
+            <h2>Log Today's Drinks</h2>
+            <div class="drink-types">
+                <button class="drink-btn" onclick="logDrink('Beer')">🍺 Beer</button>
+                <button class="drink-btn" onclick="logDrink('Wine')">🍷 Wine</button>
+                <button class="drink-btn" onclick="logDrink('Cocktail')">🍸 Cocktail</button>
+                <button class="drink-btn" onclick="logDrink('Spirit')">🥃 Spirit</button>
+            </div>
+            <p style="margin-top: 12px; font-size: 13px; color: #666; text-align: center;">Note: Drinks logged before 6am are logged under the previous calendar day</p>
+        </div>
+        
+        <div class="card">
+            <h2>This Month's Progress</h2>
+            <div id="alertBox"></div>
+            <p style="margin-bottom: 12px; font-size: 14px; color: #666; text-align: center;" id="goalDisplay">Goal = Max of 10 Days</p>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="daysUsed">0</div>
+                    <div class="stat-label">Days Used</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="daysLeft">10</div>
+                    <div class="stat-label">Days Left</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Statistics</h2>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="totalDrinks">0</div>
+                    <div class="stat-label">Total Drinks (Since Start Date)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="totalCalories">0</div>
+                    <div class="stat-label">Total Calories (Since Start Date)</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="avgPerDrinkingDay">0</div>
+                    <div class="stat-label">Avg # of Drinks per Drinking Day</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="avgCaloriesPerDrinkingDay">0</div>
+                    <div class="stat-label">Avg Calories per Drinking Day</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="avgPerCalendarDay">0</div>
+                    <div class="stat-label">Avg Drinks per Calendar Day</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="daysSinceLastDrink">-</div>
+                    <div class="stat-label">Days Since Last Drink</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="avgDaysBetween">0</div>
+                    <div class="stat-label">Avg Days Between Drinking Days</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="daysTracking">0</div>
+                    <div class="stat-label">Days Tracking</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>This Month's History</h2>
+            <div id="historyList"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Monthly Performance History</h2>
+            <div id="monthlyPerformance"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Monthly Goal</h2>
+            <div class="setting-row">
+                <label>Allowed drinking days:</label>
+                <input type="number" id="allowedDays" min="0" max="31" value="10">
+            </div>
+            <button class="drink-btn" style="width: 100%; margin-top: 8px;" onclick="updateGoal()">Update Goal</button>
+        </div>
+        
+        <div class="card">
+            <h2>Past Months</h2>
+            <div id="monthSelector" style="margin-bottom: 16px;">
+                <select id="monthDropdown" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" onchange="viewPastMonth()">
+                    <option value="">Select a month to view...</option>
+                </select>
+            </div>
+            <div id="pastMonthStats" style="display: none;">
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-number" id="pastDaysUsed">0</div>
+                        <div class="stat-label">Days Used</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="pastAllowed">0</div>
+                        <div class="stat-label">Goal</div>
+                    </div>
+                </div>
+                <div id="pastHistoryList" style="margin-top: 16px;"></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Log Past Date</h2>
+            <div class="date-picker-section">
+                <label>Select date:</label>
+                <input type="date" id="pastDate" max="">
+            </div>
+            <div class="drink-types">
+                <button class="drink-btn" onclick="logPastDrink('Beer')">🍺 Beer</button>
+                <button class="drink-btn" onclick="logPastDrink('Wine')">🍷 Wine</button>
+                <button class="drink-btn" onclick="logPastDrink('Cocktail')">🍸 Cocktail</button>
+                <button class="drink-btn" onclick="logPastDrink('Spirit')">🥃 Spirit</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Progress Start Date</h2>
+            <div class="date-picker-section">
+                <label>Select start date for statistics calculation:</label>
+                <input type="date" id="progressStartDate" value="2026-01-01">
+            </div>
+            <button class="drink-btn" style="width: 100%; margin-top: 8px;" onclick="updateProgressStartDate()">Update Start Date</button>
+            <p style="margin-top: 12px; font-size: 13px; color: #666; text-align: center;">Note: Changing this date will recalculate all statistics from the new start date forward</p>
+        </div>
+        
+        <div class="card">
+            <h2>Calorie Settings</h2>
+            <p style="margin-bottom: 16px; font-size: 14px; color: #666;">Customize the calorie values for each drink type:</p>
+            <div class="setting-row">
+                <label>Beer (default: 150 cal):</label>
+                <input type="number" id="calorieBeer" min="0" max="1000" value="150" style="width: 100px;">
+            </div>
+            <div class="setting-row">
+                <label>Wine (default: 125 cal):</label>
+                <input type="number" id="calorieWine" min="0" max="1000" value="125" style="width: 100px;">
+            </div>
+            <div class="setting-row">
+                <label>Cocktail (default: 200 cal):</label>
+                <input type="number" id="calorieCocktail" min="0" max="1000" value="200" style="width: 100px;">
+            </div>
+            <div class="setting-row">
+                <label>Spirit (default: 100 cal):</label>
+                <input type="number" id="calorieSpirit" min="0" max="1000" value="100" style="width: 100px;">
+            </div>
+            <button class="drink-btn" style="width: 100%; margin-top: 16px;" onclick="updateCalorieSettings()">Update Calorie Settings</button>
+        </div>
+        
+        <div class="card">
+            <h2 style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleDetailedInstructions()">
+                <span>More Details on How to Use This App</span>
+                <span id="detailedInstructionsToggle" style="font-size: 20px;">▼</span>
+            </h2>
+            <div id="detailedInstructionsContent" style="display: none; margin-top: 12px; font-size: 14px; line-height: 1.6; color: #444;">
+                <h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16px;">Logging Drinks</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Log Today's Drinks:</strong> Tap a drink button (Beer, Wine, Cocktail, Spirit) to log it immediately</li>
+                    <li><strong>6am Boundary:</strong> Drinks logged before 6am are counted toward the previous calendar day (perfect for late nights!)</li>
+                    <li><strong>Log Past Date:</strong> Use the date picker at the bottom to log drinks for any past date</li>
+                </ul>
+                
+                <h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16px;">Tracking Progress</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Monthly Goal:</strong> Set your maximum allowed drinking days per month</li>
+                    <li><strong>Days Used/Left:</strong> Track how many days you've used and have remaining</li>
+                    <li><strong>Progress Bar:</strong> Visual indicator of your monthly progress</li>
+                    <li><strong>Monthly Performance:</strong> See which months you succeeded or exceeded your goal</li>
+                </ul>
+                
+                <h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16px;">Statistics</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Total Drinks & Calories:</strong> Lifetime totals since your progress start date</li>
+                    <li><strong>Averages:</strong> Track average drinks and calories per drinking day</li>
+                    <li><strong>Days Since Last Drink:</strong> See your current streak</li>
+                    <li><strong>Progress Start Date:</strong> Set a custom start date to recalculate statistics from any point forward</li>
+                </ul>
+                
+                <h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16px;">Editing History</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Edit Button:</strong> Click "Edit" on any day to add or delete individual drinks</li>
+                    <li><strong>Delete Button:</strong> Remove an entire day's drinks at once</li>
+                    <li><strong>Past Months:</strong> View complete history from previous months</li>
+                </ul>
+                
+                <h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16px;">Customization</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Calorie Settings:</strong> Adjust calorie values for each drink type to match your preferences</li>
+                    <li><strong>Monthly Goal:</strong> Change your allowed drinking days at any time</li>
+                </ul>
+                
+                <h3 style="margin-top: 16px; margin-bottom: 8px; font-size: 16px;">Your Data</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Privacy:</strong> All data is stored locally on your device only - nothing is sent to any server</li>
+                    <li><strong>Persistence:</strong> Your data stays saved even when you close the app</li>
+                    <li><strong>Add to Home Screen:</strong> For the best experience, use Safari's "Add to Home Screen" feature to install this as an app</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Day Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalDateTitle">Edit Day</h2>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="drinksList"></div>
+            <div class="add-drink-section">
+                <h3 style="margin-bottom: 12px;">Add Drink</h3>
+                <div class="add-drink-buttons">
+                    <button class="add-drink-btn" onclick="addDrinkToDay('Beer')">🍺 Beer</button>
+                    <button class="add-drink-btn" onclick="addDrinkToDay('Wine')">🍷 Wine</button>
+                    <button class="add-drink-btn" onclick="addDrinkToDay('Cocktail')">🍸 Cocktail</button>
+                    <button class="add-drink-btn" onclick="addDrinkToDay('Spirit')">🥃 Spirit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="philosophyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>How Drink Shamer Rebuilds a Healthier Relationship with Drinking</h2>
+                <span class="modal-close" onclick="closePhilosophyPopup()">&times;</span>
+            </div>
+            <div style="margin-top: 16px; font-size: 14px; line-height: 1.6; color: #444;">
+                <p>An app that helps you minimize drinking, or set your own goals for moderation. Set your monthly goals and track your progress, to include tracking how many calories you are consuming with your shameful habits.</p>
+                
+                <p style="margin-top: 12px;">To use this app, start by setting your goal for the # of drinking days you will allow yourself to have per month. Then with each drink you have, simply log the drink and Drink Shamer will maintain a record of everything you've consumed. You can adjust your start date, and it will recalculate the statistics from the desired date without deleting any previous records.</p>
+                
+                <p style="margin-top: 12px;"><strong>Note:</strong> A single "drinking session" is calculated from 6am on the given calendar day to 5:59am on the following calendar day. So if your bender starts at happy hour and lasts almost until sunrise, Drink Shamer will log that all under 1 session. But if you go past 5:59am and start your Tuesday morning with a bloody mary at 7am, then that drink will count as a new drinking session.</p>
+                
+                <p style="margin-top: 12px;">Drink Shamer also tracks the total # of calories you have consumed through drinking since the set start date, as well as the average # of calories per drinking day. Punish yourself by going on the treadmill after each session and sweating out those calories. You can adjust the calories per drink at the bottom of the app.</p>
+                
+                <p style="margin-top: 12px;">You can also view previous month's logs and either add drinks you might have forgotten to log but somehow didn't blackout the memory of consuming them, or even deleting previous records if the shame is too great to bear.</p>
+                
+                <p style="margin-top: 12px; font-style: italic;">Drink Shamer is not responsible for your bad choices. Only you can prevent forest fires.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data structure
+        function getStorageKey() {
+            const now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth();
+            
+            // If it's before 6am, count it as the previous day
+            if (now.getHours() < 6) {
+                let day = now.getDate() - 1;
+                
+                // Handle month boundaries
+                if (day < 1) {
+                    month = month - 1;
+                    if (month < 0) {
+                        month = 11;
+                        year = year - 1;
+                    }
+                }
+            }
+            
+            return `drinkTracker_${year}_${month}`;
+        }
+        
+        function loadData() {
+            const key = getStorageKey();
+            const data = localStorage.getItem(key);
+            if (data) {
+                return JSON.parse(data);
+            }
+            return {
+                allowedDays: 10,
+                days: {}
+            };
+        }
+        
+        function saveData(data) {
+            const key = getStorageKey();
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+        
+        function getTodayKey() {
+            const now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth() + 1;
+            let day = now.getDate();
+            
+            console.log('Current time:', now.toString());
+            console.log('Hours:', now.getHours());
+            
+            // If it's before 6am, count it as the previous day
+            if (now.getHours() < 6) {
+                console.log('Before 6am, subtracting a day');
+                day = day - 1;
+                
+                // Handle month boundaries
+                if (day < 1) {
+                    month = month - 1;
+                    if (month < 1) {
+                        month = 12;
+                        year = year - 1;
+                    }
+                    // Get last day of previous month
+                    day = new Date(year, month, 0).getDate();
+                }
+            } else {
+                console.log('After 6am, using current day');
+            }
+            
+            const result = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            console.log('getTodayKey result:', result);
+            return result;
+        }
+        
+        function updateGoal() {
+            const allowedDays = parseInt(document.getElementById('allowedDays').value);
+            const data = loadData();
+            data.allowedDays = allowedDays;
+            saveData(data);
+            updateDisplay();
+            showAlert('Goal updated!', 'success');
+        }
+        
+        function updateProgressStartDate() {
+            const startDate = document.getElementById('progressStartDate').value;
+            if (!startDate) {
+                showAlert('Please select a start date', 'danger');
+                return;
+            }
+            localStorage.setItem('progressStartDate', startDate);
+            updateDisplay();
+            showAlert('Progress start date updated!', 'success');
+        }
+        
+        function getProgressStartDate() {
+            const saved = localStorage.getItem('progressStartDate');
+            return saved || '2026-01-01';
+        }
+        
+        function updateCalorieSettings() {
+            const calorieSettings = {
+                Beer: parseInt(document.getElementById('calorieBeer').value),
+                Wine: parseInt(document.getElementById('calorieWine').value),
+                Cocktail: parseInt(document.getElementById('calorieCocktail').value),
+                Spirit: parseInt(document.getElementById('calorieSpirit').value)
+            };
+            localStorage.setItem('calorieSettings', JSON.stringify(calorieSettings));
+            updateDisplay();
+            showAlert('Calorie settings updated!', 'success');
+        }
+        
+        function getCalorieSettings() {
+            const saved = localStorage.getItem('calorieSettings');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            // Default values
+            return {
+                Beer: 150,
+                Wine: 125,
+                Cocktail: 200,
+                Spirit: 100
+            };
+        }
+        
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const toggle = document.getElementById('instructionsToggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▼';
+            }
+        }
+        
+        function toggleDetailedInstructions() {
+            const content = document.getElementById('detailedInstructionsContent');
+            const toggle = document.getElementById('detailedInstructionsToggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '▼';
+            }
+        }
+        
+        function showPhilosophyPopup() {
+            document.getElementById('philosophyModal').style.display = 'block';
+        }
+        
+        function closePhilosophyPopup() {
+            document.getElementById('philosophyModal').style.display = 'none';
+        }
+        
+        function logDrink(drinkType) {
+            const data = loadData();
+            const today = getTodayKey();
+            
+            console.log('logDrink called with type:', drinkType);
+            console.log('today from getTodayKey:', today);
+            console.log('Current data.days:', Object.keys(data.days));
+            
+            if (!data.days[today]) {
+                data.days[today] = [];
+            }
+            
+            data.days[today].push({
+                type: drinkType,
+                time: new Date().toLocaleTimeString()
+            });
+            
+            console.log('After adding drink, data.days:', Object.keys(data.days));
+            
+            saveData(data);
+            updateDisplay();
+            showAlert(`Logged ${drinkType}`, 'success');
+        }
+        
+        function logPastDrink(type) {
+            const dateInput = document.getElementById('pastDate');
+            if (!dateInput.value) {
+                showAlert('Please select a date first', 'danger');
+                return;
+            }
+            
+            const selectedDate = dateInput.value;
+            
+            // Parse the date string directly to avoid timezone issues
+            const parts = selectedDate.split('-');
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const storageKey = `drinkTracker_${year}_${month}`;
+            
+            // Load data for that specific month
+            let monthData = localStorage.getItem(storageKey);
+            if (monthData) {
+                monthData = JSON.parse(monthData);
+            } else {
+                // Create new month data if it doesn't exist
+                monthData = {
+                    allowedDays: 10,
+                    days: {}
+                };
+            }
+            
+            if (!monthData.days[selectedDate]) {
+                monthData.days[selectedDate] = [];
+            }
+            
+            monthData.days[selectedDate].push({
+                type: type,
+                time: new Date().toLocaleTimeString()
+            });
+            
+            // Save to the correct month's storage key
+            localStorage.setItem(storageKey, JSON.stringify(monthData));
+            
+            updateDisplay();
+            showAlert(`Logged ${type} for ${new Date(selectedDate).toLocaleDateString()}`, 'success');
+        }
+        
+        let currentEditDate = null;
+        let currentEditStorageKey = null;
+        
+        function openEditModal(dateKey) {
+            currentEditDate = dateKey;
+            // Parse the date string directly to avoid timezone issues
+            const parts = dateKey.split('-');
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1; // JavaScript months are 0-indexed
+            currentEditStorageKey = `drinkTracker_${year}_${month}`;
+            
+            const modal = document.getElementById('editModal');
+            let monthData = localStorage.getItem(currentEditStorageKey);
+            if (!monthData) {
+                monthData = { allowedDays: 10, days: {} };
+            } else {
+                monthData = JSON.parse(monthData);
+            }
+            
+            const drinks = monthData.days[dateKey] || [];
+            
+            // Parse date manually to avoid timezone issues
+            const dateParts = dateKey.split('-');
+            const displayDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            
+            document.getElementById('modalDateTitle').textContent = `Edit ${displayDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+            
+            const drinksList = document.getElementById('drinksList');
+            if (drinks.length === 0) {
+                drinksList.innerHTML = '<p style="text-align: center; color: #999;">No drinks logged for this day</p>';
+            } else {
+                drinksList.innerHTML = drinks.map((drink, index) => `
+                    <div class="drink-item">
+                        <div class="drink-info">
+                            <div class="drink-type-text">${drink.type}</div>
+                            <div class="drink-time">${drink.time}</div>
+                        </div>
+                        <button class="delete-drink-btn" onclick="deleteDrinkFromDay(${index})">Delete</button>
+                    </div>
+                `).join('');
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditDate = null;
+            currentEditStorageKey = null;
+        }
+        
+        function addDrinkToDay(type) {
+            if (!currentEditDate || !currentEditStorageKey) return;
+            
+            let monthData = localStorage.getItem(currentEditStorageKey);
+            if (!monthData) {
+                monthData = { allowedDays: 10, days: {} };
+            } else {
+                monthData = JSON.parse(monthData);
+            }
+            
+            if (!monthData.days[currentEditDate]) {
+                monthData.days[currentEditDate] = [];
+            }
+            
+            monthData.days[currentEditDate].push({
+                type: type,
+                time: new Date().toLocaleTimeString()
+            });
+            
+            localStorage.setItem(currentEditStorageKey, JSON.stringify(monthData));
+            updateDisplay();
+            openEditModal(currentEditDate);
+            showAlert(`Added ${type}`, 'success');
+        }
+        
+        function deleteDrinkFromDay(index) {
+            if (!currentEditDate || !currentEditStorageKey) return;
+            
+            let monthData = localStorage.getItem(currentEditStorageKey);
+            if (!monthData) return;
+            monthData = JSON.parse(monthData);
+            
+            if (!monthData.days[currentEditDate]) return;
+            
+            monthData.days[currentEditDate].splice(index, 1);
+            
+            if (monthData.days[currentEditDate].length === 0) {
+                delete monthData.days[currentEditDate];
+            }
+            
+            localStorage.setItem(currentEditStorageKey, JSON.stringify(monthData));
+            closeModal();
+            updateDisplay();
+            showAlert('Drink deleted', 'success');
+        }
+        
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const philosophyModal = document.getElementById('philosophyModal');
+            if (event.target === editModal) {
+                closeModal();
+            }
+            if (event.target === philosophyModal) {
+                closePhilosophyPopup();
+            }
+        }
+        
+        function deleteDrinkDay(dateKey) {
+            if (confirm('Delete all drinks for this day?')) {
+                // Parse the date string directly to avoid timezone issues
+                const parts = dateKey.split('-');
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const storageKey = `drinkTracker_${year}_${month}`;
+                
+                let monthData = localStorage.getItem(storageKey);
+                if (!monthData) return;
+                monthData = JSON.parse(monthData);
+                
+                delete monthData.days[dateKey];
+                localStorage.setItem(storageKey, JSON.stringify(monthData));
+                updateDisplay();
+            }
+        }
+        
+        function updateDisplay() {
+            const data = loadData();
+            const daysUsed = Object.keys(data.days).length;
+            const daysLeft = Math.max(0, data.allowedDays - daysUsed);
+            const percentage = Math.min(100, (daysUsed / data.allowedDays) * 100);
+            
+            document.getElementById('allowedDays').value = data.allowedDays;
+            document.getElementById('goalDisplay').textContent = `Goal = Max of ${data.allowedDays} Days`;
+            document.getElementById('daysUsed').textContent = daysUsed;
+            document.getElementById('daysLeft').textContent = daysLeft;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressBar').textContent = Math.round(percentage) + '%';
+            
+            // Calculate statistics
+            calculateStatistics(data);
+            
+            // Show warning if over limit
+            if (daysLeft === 0 && daysUsed >= data.allowedDays) {
+                showAlert('You have reached your monthly limit!', 'danger');
+            } else if (daysLeft <= 2 && daysLeft > 0) {
+                showAlert(`Only ${daysLeft} days remaining this month`, 'warning');
+            }
+            
+            // Update history
+            const historyList = document.getElementById('historyList');
+            const sortedDays = Object.keys(data.days).sort().reverse();
+            
+            if (sortedDays.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #999;">No drinks logged this month</p>';
+            } else {
+                historyList.innerHTML = sortedDays.map(dateKey => {
+                    const drinks = data.days[dateKey];
+                    const drinkSummary = drinks.reduce((acc, drink) => {
+                        acc[drink.type] = (acc[drink.type] || 0) + 1;
+                        return acc;
+                    }, {});
+                    
+                    const summaryText = Object.entries(drinkSummary)
+                        .map(([type, count]) => `${count}x ${type}`)
+                        .join(', ');
+                    
+                    // Parse date manually to avoid timezone issues
+                    const dateParts = dateKey.split('-');
+                    const displayDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                    
+                    return `
+                        <div class="history-item">
+                            <div>
+                                <div class="history-date">${displayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                                <div class="history-drinks">${summaryText}</div>
+                            </div>
+                            <div>
+                                <button class="edit-btn" onclick="openEditModal('${dateKey}')">Edit</button>
+                                <button class="delete-btn" onclick="deleteDrinkDay('${dateKey}')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Populate past months dropdown
+            populatePastMonths();
+            
+            // Update monthly performance history
+            updateMonthlyPerformance();
+        }
+        
+        function updateMonthlyPerformance() {
+            const performanceDiv = document.getElementById('monthlyPerformance');
+            const allKeys = Object.keys(localStorage).filter(key => key.startsWith('drinkTracker_'));
+            const currentKey = getStorageKey();
+            
+            // Get all months including current
+            const allMonths = allKeys
+                .map(key => {
+                    const parts = key.split('_');
+                    const data = JSON.parse(localStorage.getItem(key));
+                    const daysUsed = Object.keys(data.days).length;
+                    const goal = data.allowedDays;
+                    
+                    return {
+                        key: key,
+                        year: parseInt(parts[1]),
+                        month: parseInt(parts[2]),
+                        daysUsed: daysUsed,
+                        goal: goal,
+                        isCurrent: key === currentKey
+                    };
+                })
+                .sort((a, b) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return b.month - a.month;
+                });
+            
+            if (allMonths.length === 0) {
+                performanceDiv.innerHTML = '<p style="text-align: center; color: #999;">No history available yet</p>';
+                return;
+            }
+            
+            performanceDiv.innerHTML = allMonths.map(m => {
+                const date = new Date(m.year, m.month, 1);
+                const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                const success = m.daysUsed <= m.goal;
+                const daysOver = m.daysUsed - m.goal;
+                
+                let resultBadge = '';
+                let resultDetails = '';
+                
+                if (m.isCurrent) {
+                    resultBadge = '<span class="badge-success">In Progress</span>';
+                    resultDetails = `<span class="performance-details">${m.daysUsed}/${m.goal} days</span>`;
+                } else if (success) {
+                    resultBadge = '<span class="badge-success">Success</span>';
+                    resultDetails = `<span class="performance-details">${m.daysUsed}/${m.goal} days</span>`;
+                } else {
+                    resultBadge = '<span class="badge-fail">Failed</span>';
+                    resultDetails = `<span class="performance-details">${daysOver} days over (${m.daysUsed}/${m.goal})</span>`;
+                }
+                
+                return `
+                    <div class="performance-item">
+                        <div class="performance-month">${monthName}</div>
+                        <div class="performance-result">
+                            ${resultDetails}
+                            ${resultBadge}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function calculateStatistics(data) {
+            const drinkingDays = Object.keys(data.days);
+            
+            // Get the progress start date
+            const progressStartDateStr = getProgressStartDate();
+            const progressStartParts = progressStartDateStr.split('-');
+            const progressStartDate = new Date(parseInt(progressStartParts[0]), parseInt(progressStartParts[1]) - 1, parseInt(progressStartParts[2]));
+            progressStartDate.setHours(0, 0, 0, 0);
+            
+            // Calculate total drinks across ALL months since progress start date
+            let totalDrinksAllTime = 0;
+            let totalCalories = 0;
+            const allKeys = Object.keys(localStorage).filter(key => key.startsWith('drinkTracker_'));
+            
+            // Get calorie values from settings
+            const caloriesByType = getCalorieSettings();
+            
+            allKeys.forEach(key => {
+                const monthData = JSON.parse(localStorage.getItem(key));
+                Object.keys(monthData.days).forEach(day => {
+                    // Parse the date and check if it's on or after the progress start date
+                    const dayParts = day.split('-');
+                    const dayDate = new Date(parseInt(dayParts[0]), parseInt(dayParts[1]) - 1, parseInt(dayParts[2]));
+                    dayDate.setHours(0, 0, 0, 0);
+                    
+                    if (dayDate >= progressStartDate) {
+                        monthData.days[day].forEach(drink => {
+                            totalDrinksAllTime++;
+                            totalCalories += caloriesByType[drink.type] || 150; // Default to 150 if type not found
+                        });
+                    }
+                });
+            });
+            
+            // Calculate days since progress start date
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const daysTracking = Math.floor((today - progressStartDate) / (1000 * 60 * 60 * 24)) + 1;
+            
+            // Display total drinks, calories, and days tracking
+            document.getElementById('totalDrinks').textContent = totalDrinksAllTime;
+            document.getElementById('totalCalories').textContent = totalCalories.toLocaleString();
+            document.getElementById('daysTracking').textContent = daysTracking;
+            
+            // Average per calendar day (total drinks / days since Jan 1, 2026)
+            const avgPerCalendarDay = (totalDrinksAllTime / daysTracking).toFixed(1);
+            document.getElementById('avgPerCalendarDay').textContent = avgPerCalendarDay;
+            
+            // If no drinks this month, set remaining stats to default
+            if (drinkingDays.length === 0) {
+                document.getElementById('avgPerDrinkingDay').textContent = '0';
+                document.getElementById('daysSinceLastDrink').textContent = '-';
+                document.getElementById('avgDaysBetween').textContent = '0';
+                return;
+            }
+            
+            // Calculate total drinks THIS MONTH
+            let totalDrinksThisMonth = 0;
+            drinkingDays.forEach(day => {
+                totalDrinksThisMonth += data.days[day].length;
+            });
+            
+            // 1. Average drinks per drinking day (this month)
+            const avgPerDrinkingDay = (totalDrinksThisMonth / drinkingDays.length).toFixed(1);
+            document.getElementById('avgPerDrinkingDay').textContent = avgPerDrinkingDay;
+            
+            // Calculate average calories per drinking day (across all time since progress start)
+            // First, get all drinking days and calculate total calories across all drinking days
+            let totalDrinkingDaysAllTime = 0;
+            let totalCaloriesAllDays = 0;
+            allKeys.forEach(key => {
+                const monthData = JSON.parse(localStorage.getItem(key));
+                const daysInMonth = Object.keys(monthData.days);
+                
+                daysInMonth.forEach(day => {
+                    // Parse the date and check if it's on or after the progress start date
+                    const dayParts = day.split('-');
+                    const dayDate = new Date(parseInt(dayParts[0]), parseInt(dayParts[1]) - 1, parseInt(dayParts[2]));
+                    dayDate.setHours(0, 0, 0, 0);
+                    
+                    if (dayDate >= progressStartDate) {
+                        totalDrinkingDaysAllTime++;
+                        monthData.days[day].forEach(drink => {
+                            totalCaloriesAllDays += caloriesByType[drink.type] || 150;
+                        });
+                    }
+                });
+            });
+            
+            const avgCaloriesPerDrinkingDay = totalDrinkingDaysAllTime > 0 
+                ? Math.round(totalCaloriesAllDays / totalDrinkingDaysAllTime) 
+                : 0;
+            document.getElementById('avgCaloriesPerDrinkingDay').textContent = avgCaloriesPerDrinkingDay.toLocaleString();
+            
+            // 2. Days since last drink - simple difference between today and most recent drink date
+            // Get ALL drinking days across all months since progress start date, sorted
+            let allDrinkingDays = [];
+            allKeys.forEach(key => {
+                const monthData = JSON.parse(localStorage.getItem(key));
+                Object.keys(monthData.days).forEach(day => {
+                    // Parse the date and check if it's on or after the progress start date
+                    const dayParts = day.split('-');
+                    const dayDate = new Date(parseInt(dayParts[0]), parseInt(dayParts[1]) - 1, parseInt(dayParts[2]));
+                    dayDate.setHours(0, 0, 0, 0);
+                    
+                    if (dayDate >= progressStartDate) {
+                        allDrinkingDays.push(day);
+                    }
+                });
+            });
+            allDrinkingDays.sort();
+            
+            if (allDrinkingDays.length === 0) {
+                document.getElementById('daysSinceLastDrink').textContent = '-';
+            } else {
+                // Get the most recent drink date - parse manually to avoid timezone issues
+                const lastDrinkDateKey = allDrinkingDays[allDrinkingDays.length - 1];
+                const dateParts = lastDrinkDateKey.split('-');
+                const lastDrinkDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                lastDrinkDate.setHours(0, 0, 0, 0);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const daysSinceLastDrink = Math.floor((today - lastDrinkDate) / (1000 * 60 * 60 * 24));
+                document.getElementById('daysSinceLastDrink').textContent = daysSinceLastDrink;
+            }
+            
+            // 3. Average days between drinking days (across all time)
+            if (allDrinkingDays.length > 1) {
+                // Parse dates manually to avoid timezone issues
+                const dates = allDrinkingDays.map(dateKey => {
+                    const parts = dateKey.split('-');
+                    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                });
+                let totalDaysBetween = 0;
+                
+                for (let i = 1; i < dates.length; i++) {
+                    const daysBetween = (dates[i] - dates[i-1]) / (1000 * 60 * 60 * 24);
+                    totalDaysBetween += daysBetween;
+                }
+                
+                const avgDaysBetween = (totalDaysBetween / (dates.length - 1)).toFixed(1);
+                document.getElementById('avgDaysBetween').textContent = avgDaysBetween;
+            } else {
+                document.getElementById('avgDaysBetween').textContent = '-';
+            }
+        }
+        
+        function populatePastMonths() {
+            const dropdown = document.getElementById('monthDropdown');
+            const allKeys = Object.keys(localStorage).filter(key => key.startsWith('drinkTracker_'));
+            const currentKey = getStorageKey();
+            
+            // Get all months except current
+            const pastMonths = allKeys
+                .filter(key => key !== currentKey)
+                .map(key => {
+                    const parts = key.split('_');
+                    return {
+                        key: key,
+                        year: parseInt(parts[1]),
+                        month: parseInt(parts[2])
+                    };
+                })
+                .sort((a, b) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return b.month - a.month;
+                });
+            
+            if (pastMonths.length === 0) {
+                dropdown.innerHTML = '<option value="">No past months available</option>';
+                dropdown.disabled = true;
+            } else {
+                dropdown.disabled = false;
+                dropdown.innerHTML = '<option value="">Select a month to view...</option>' +
+                    pastMonths.map(m => {
+                        const date = new Date(m.year, m.month, 1);
+                        const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        return `<option value="${m.key}">${monthName}</option>`;
+                    }).join('');
+            }
+        }
+        
+        function viewPastMonth() {
+            const dropdown = document.getElementById('monthDropdown');
+            const selectedKey = dropdown.value;
+            const statsDiv = document.getElementById('pastMonthStats');
+            
+            if (!selectedKey) {
+                statsDiv.style.display = 'none';
+                return;
+            }
+            
+            statsDiv.style.display = 'block';
+            
+            const data = JSON.parse(localStorage.getItem(selectedKey));
+            const daysUsed = Object.keys(data.days).length;
+            
+            document.getElementById('pastDaysUsed').textContent = daysUsed;
+            document.getElementById('pastAllowed').textContent = data.allowedDays;
+            
+            // Show past month history
+            const pastHistoryList = document.getElementById('pastHistoryList');
+            const sortedDays = Object.keys(data.days).sort().reverse();
+            
+            if (sortedDays.length === 0) {
+                pastHistoryList.innerHTML = '<p style="text-align: center; color: #999;">No drinks logged this month</p>';
+            } else {
+                pastHistoryList.innerHTML = sortedDays.map(dateKey => {
+                    const drinks = data.days[dateKey];
+                    const drinkSummary = drinks.reduce((acc, drink) => {
+                        acc[drink.type] = (acc[drink.type] || 0) + 1;
+                        return acc;
+                    }, {});
+                    
+                    const summaryText = Object.entries(drinkSummary)
+                        .map(([type, count]) => `${count}x ${type}`)
+                        .join(', ');
+                    
+                    // Parse date manually to avoid timezone issues
+                    const dateParts = dateKey.split('-');
+                    const displayDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                    
+                    return `
+                        <div class="history-item">
+                            <div>
+                                <div class="history-date">${displayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                                <div class="history-drinks">${summaryText}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class="alert ${type}">${message}</div>`;
+            setTimeout(() => {
+                alertBox.innerHTML = '';
+            }, 3000);
+        }
+        
+        // Initialize on load
+        migrateMisplacedDates();
+        
+        // Load saved progress start date
+        const savedStartDate = getProgressStartDate();
+        document.getElementById('progressStartDate').value = savedStartDate;
+        
+        // Load saved calorie settings
+        const savedCalories = getCalorieSettings();
+        document.getElementById('calorieBeer').value = savedCalories.Beer;
+        document.getElementById('calorieWine').value = savedCalories.Wine;
+        document.getElementById('calorieCocktail').value = savedCalories.Cocktail;
+        document.getElementById('calorieSpirit').value = savedCalories.Spirit;
+        
+        updateDisplay();
+        
+        // Set max date for past date picker to today
+        const today = new Date();
+        document.getElementById('pastDate').max = today.toISOString().split('T')[0];
+        
+        // Function to migrate any misplaced dates to their correct month storage
+        function migrateMisplacedDates() {
+            const allKeys = Object.keys(localStorage).filter(key => key.startsWith('drinkTracker_'));
+            
+            console.log('Running migration, found keys:', allKeys);
+            
+            allKeys.forEach(storageKey => {
+                let monthData = JSON.parse(localStorage.getItem(storageKey));
+                const datesToMove = [];
+                
+                // Check each date in this month's storage
+                Object.keys(monthData.days).forEach(dateKey => {
+                    const dateObj = new Date(dateKey + 'T12:00:00'); // Add time to avoid timezone issues
+                    const correctStorageKey = `drinkTracker_${dateObj.getFullYear()}_${dateObj.getMonth()}`;
+                    
+                    console.log(`Checking ${dateKey}: current key=${storageKey}, correct key=${correctStorageKey}`);
+                    
+                    // If the date belongs to a different month, mark it for migration
+                    if (correctStorageKey !== storageKey) {
+                        console.log(`Date ${dateKey} is misplaced, will move from ${storageKey} to ${correctStorageKey}`);
+                        datesToMove.push({
+                            dateKey: dateKey,
+                            drinks: monthData.days[dateKey],
+                            correctStorageKey: correctStorageKey
+                        });
+                    }
+                });
+                
+                // Move the misplaced dates
+                datesToMove.forEach(item => {
+                    // Load or create the correct month's data
+                    let correctMonthData = localStorage.getItem(item.correctStorageKey);
+                    if (correctMonthData) {
+                        correctMonthData = JSON.parse(correctMonthData);
+                    } else {
+                        correctMonthData = {
+                            allowedDays: 10,
+                            days: {}
+                        };
+                    }
+                    
+                    // Add the drinks to the correct month
+                    correctMonthData.days[item.dateKey] = item.drinks;
+                    localStorage.setItem(item.correctStorageKey, JSON.stringify(correctMonthData));
+                    console.log(`Moved ${item.dateKey} to ${item.correctStorageKey}`);
+                    
+                    // Remove from the wrong month
+                    delete monthData.days[item.dateKey];
+                });
+                
+                // Save the cleaned up month data
+                if (datesToMove.length > 0) {
+                    localStorage.setItem(storageKey, JSON.stringify(monthData));
+                    console.log(`Cleaned up ${storageKey}, removed ${datesToMove.length} misplaced dates`);
+                }
+            });
+        }
+        
+        // Function to migrate any misplaced dates to their correct month storage
+    </script>
+</body>
+</html>
